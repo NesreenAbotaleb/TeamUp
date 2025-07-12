@@ -1,0 +1,218 @@
+/* .content {
+    margin-top: 50px;
+    overflow: auto;
+    font-size: 30px;
+    padding-left: 10%;
+}
+
+.switchBtn {
+    float: right;
+    margin-right: 20%;
+    margin-top: 0.7%;
+    width: 60px;
+} */
+.settingsContent {
+  flex: 1;
+  padding: 40px 60px;
+  background-color: #fff;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  font-size: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+.content:hover {
+  background-color: #f0f0f0;
+}
+
+.switchBtn {
+  transform: scale(1.2);
+  margin-left: 20px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 18px;
+    padding: 15px 20px;
+  }
+
+  .switchBtn {
+    margin-left: 0;
+    margin-top: 10px;
+    align-self: flex-end;
+  }
+}
+
+.menuContainer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
+
+.container {
+  margin-top: 40px;
+}
+
+
+.profile h3 {
+  font-size: 1.5rem;
+  margin-left: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.settingsButton {
+  background: linear-gradient(90deg, #253580 0%, #0e6bd9 34.2%),
+    linear-gradient(90deg, rgba(2, 48, 71, 0) 0%, rgba(2, 48, 71, 0.2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  border: none;
+}
+
+.settingsButton:hover {
+  background-position: right;
+  text-shadow: 0 0 8px #253580, 0 0 12px #0e6bd9;
+  transform: scale(1.1);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.notificationsList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.statusMessage {
+  padding: 1rem;
+  color: #888;
+  text-align: center;
+}
+
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notificationItem {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.notificationItem:hover {
+  background-color: #f5f5f5;
+}
+
+.notificationContent {
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.notificationTime {
+  color: #888;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.invitationButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.acceptButton {
+  background-color: #253580;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.acceptButton:hover:not(:disabled) {
+  background-color: #0e6bd9;
+}
+
+.denyButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.denyButton:hover:not(:disabled) {
+  background-color: #da190b;
+}
+
+.acceptButton.processing,
+.denyButton.processing {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.acceptButton:disabled,
+.denyButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  margin-top: 20px;
+  line-height: 25px;
+}

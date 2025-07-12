@@ -1,0 +1,157 @@
+.menuContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.menuContainer button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.menuContainer button:hover {
+    transform: scale(1.1);
+}
+
+.menuContainer svg {
+    width: 24px;
+    height: 24px;
+    color: #023047;
+}
+
+.container {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: -370%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    padding: 8px;
+    z-index: 9999;
+}
+
+
+.profile,
+.community {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #023047;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.profile:hover,
+.community:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    color: #023047;
+}
+
+.profile h3,
+.community h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Add a subtle divider between menu items */
+.profile:not(:last-child),
+.community:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Animation for menu appearance */
+.container {
+    animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .menuContainer {
+        margin-right: 15px;
+    }
+
+    .container {
+        position: fixed;
+        top: 60px;
+        left: 20px;
+        right: 2%;
+        min-width: 50%;
+        z-index: 9999;
+    }
+
+    .profile,
+    .community {
+        padding: 10px 14px;
+    }
+
+    .profile h3,
+    .community h3 {
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+
+/* Menu wrapper for tooltips */
+.menuWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.hintMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #bad2ff;
+    color: #044785;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    pointer-events: none;
+    margin-left: 100px;
+
+}
+
+.menuWrapper:hover .hintMenu {
+    opacity: 1;
+    visibility: visible;
+}

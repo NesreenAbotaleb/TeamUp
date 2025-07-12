@@ -1,0 +1,420 @@
+.headerContainer {
+    width: 100%;
+    height: 4.5em;
+    background: linear-gradient(90deg, #253580 0%, #0e6bd9 34.2%),
+        linear-gradient(90deg, rgba(2, 48, 71, 0) 0%, rgba(2, 48, 71, 0.2) 100%);
+    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    gap: 20%;
+    
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    left: 0;
+}
+
+/* Left section - Menu + Logo/Name */
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+    min-width: 0; /* Allow shrinking */
+}
+
+/* Center section - Navigation */
+.centerSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0; /* Allow shrinking */
+}
+
+/* Right section - Search + Icons */
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 6rem;
+    flex-shrink: 0;
+    min-width: 0; /* Allow shrinking */
+    /* right: 0; */
+    margin-right: -3%;
+}
+
+/* Logo/Icon styling */
+.icon svg {
+    width: 120px;
+    height: auto;
+    max-height: 45px;
+}
+
+/* Name styling with proper truncation */
+.name {
+    color: aliceblue;
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    margin: 0;
+}
+
+.name h3 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Navigation styling */
+.nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.navLink {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.navLink:hover {
+    color: #ffc107;
+    transform: translateY(-1px);
+}
+
+/* Login button */
+.login {
+    padding: 12px 24px;
+  background: linear-gradient(135deg, #FDB813 0%, #f39c12 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 20px rgba(253, 184, 19, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.login:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Header icons container */
+.headerIcons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.headerIcons svg {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.headerIcons svg:hover {
+    transform: translateY(-2px);
+    opacity: 0.8;
+}
+
+/* Menu wrapper for tooltips */
+.menuWrapper {
+    position: relative;
+    display: inline-block;
+    fill: #ccc;
+}
+
+.hintMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #bad2ff;
+    color: #044785;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.menuWrapper:hover .hintMenu {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Profile/notification menu positioning */
+.profile {
+    position: relative;
+}
+
+.notificationMenu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+}
+
+.notificationMenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notificationMenu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.notificationMenu li:hover {
+    background-color: #f5f5f5;
+}
+
+/* Search component integration */
+.searchContainer {
+    flex-shrink: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .headerContainer {
+        padding: 10px 15px;
+    }
+    
+    .nav {
+        gap: 1.5rem;
+    }
+    
+    .searchContainer {
+        max-width: 250px;
+    }
+    
+    .name {
+        max-width: 150px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .nav {
+        gap: 1rem;
+    }
+    
+    .navLink {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .searchContainer {
+        max-width: 200px;
+        min-width: 150px;
+    }
+    
+    .leftSection {
+        gap: 10px;
+    }
+    
+    .rightSection {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .headerContainer {
+        padding: 8px 12px;
+        height: 4rem;
+    }
+    
+    /* Hide navigation on mobile */
+    .nav {
+        display: none;
+    }
+    
+    .nav.open {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(90deg, #253580 0%, #0e6bd9 34.2%);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 15;
+    }
+    
+    .navLink {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+    
+    .icon svg {
+        width: 100px;
+        max-height: 35px;
+    }
+    
+    .name {
+        font-size: 0.9rem;
+        max-width: 120px;
+    }
+    
+    .searchContainer {
+        max-width: 150px;
+        min-width: 120px;
+    }
+    
+    .headerIcons {
+        gap: 8px;
+    }
+    
+    .headerIcons svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .leftSection {
+        gap: 8px;
+    }
+    
+    .rightSection {
+        gap: 8px;
+    }
+    
+    .login {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .headerContainer {
+        padding: 6px 10px;
+        height: 3.5rem;
+    }
+    
+    .icon svg {
+        width: 80px;
+        max-height: 30px;
+    }
+    
+    .name {
+        font-size: 0.8rem;
+        max-width: 100px;
+    }
+    
+    .searchContainer {
+        max-width: 120px;
+        min-width: 100px;
+    }
+    
+    .headerIcons svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .login {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .hintMenu {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}
+
+/* Menu button for mobile */
+.menuButton {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: white;
+    padding: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .menuButton {
+        display: block;
+    }
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+/* Animation for smooth transitions */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nav.open {
+    animation: slideDown 0.3s ease;
+}
+
+/* Fix for overflow issues */
+.headerContainer * {
+    box-sizing: border-box;
+}
+
+/* Ensure proper text rendering */
+.name,
+.navLink,
+.login {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

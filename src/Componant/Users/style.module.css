@@ -1,0 +1,163 @@
+.membersContainer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    padding-top: 70px; /* Allow space for the header */
+    transition: all 0.3s ease;
+}
+
+.membersTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 10px 0;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #023047;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.profile:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #e0e0e0;
+    flex-shrink: 0;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.profile h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.profile p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.profile:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Responsive styles for small screens */
+@media (max-width: 768px) {
+    /* Hide the entire component when list is empty and hasFilteredUsers is true */
+    .membersContainer.hideOnMobile {
+        display: none;
+    }
+    
+    /* When there are users, make the container narrower and show only profile pics */
+    .membersContainer {
+        width: 80px;
+    }
+    
+    .membersTitle {
+        display: none;
+    }
+    
+    .profile {
+        justify-content: center;
+        padding: 12px 8px;
+        gap: 0;
+    }
+    
+    .info {
+        opacity: 0;
+        visibility: hidden;
+        position: absolute;
+        left: 70px;
+        top: 50%;
+        transform: translateY(-50%) translateX(-10px);
+        background: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+        transition: all 0.2s ease;
+        min-width: 120px;
+    }
+    
+    .profile:hover .info {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(-50%) translateX(0);
+        pointer-events: auto;
+    }
+    
+    .profile:hover {
+        transform: none;
+        background-color: rgba(248, 249, 250, 0.5);
+    }
+    
+    /* Add arrow to tooltip */
+    .info::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border: 6px solid transparent;
+        border-right-color: white;
+    }
+}
+
+/* For very small screens (mobile phones) */
+@media (max-width: 480px) {
+    .membersContainer {
+        width: 60px;
+    }
+    
+    .icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .profile {
+        padding: 8px 4px;
+    }
+    
+    .info {
+        left: 55px;
+    }
+}

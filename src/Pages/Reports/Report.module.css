@@ -1,0 +1,654 @@
+/* Page Layout */
+.pageContainer {
+    min-height: 100vh;
+    background: #e4eeff;
+    display: flex;
+    flex-direction: column;
+    /* Ensure full viewport coverage on mobile */
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+}
+
+.mainContent {
+    flex: 1;
+    padding: 0;
+    background-color: #f8fafc;
+    margin-top: 80px; /* Increased margin to push content below header */
+    /* Better mobile margin */
+    margin-top: clamp(60px, 15vw, 80px);
+}
+
+/* Page Header */
+.pageHeader {
+    background: #f8fafc; /* Changed from white to match main content background */
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+    /* Remove sticky positioning to place it under the header component */
+    position: static;
+    z-index: 50; /* Reduced z-index since it's no longer sticky */
+}
+
+.headerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    /* Better mobile padding */
+    padding: clamp(20px, 6vw, 32px) clamp(16px, 4vw, 24px);
+}
+
+.pageTitle {
+    margin: 0 0 8px 0;
+    color: #061024;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    /* Responsive title */
+    font-size: clamp(24px, 6vw, 32px);
+    margin-bottom: clamp(6px, 2vw, 8px);
+    line-height: 1.2;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+.pageSubtitle {
+    margin: 0;
+    color: #292f39;
+    font-size: 16px;
+    line-height: 1.5;
+    /* Responsive subtitle */
+    font-size: clamp(14px, 3.5vw, 16px);
+    line-height: 1.6;
+}
+
+.communityCode {
+    color: #3182ce;
+    font-weight: 600;
+    /* Better mobile display */
+    word-wrap: break-word;
+    display: inline-block;
+}
+
+/* Reports Section */
+.reportsSection {
+    background-color: #f8fafc;
+    min-height: calc(100vh - 200px);
+    /* Better mobile height calculation */
+    min-height: calc(100dvh - clamp(150px, 25vh, 200px));
+}
+
+/* Loading States */
+.loadingContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    padding: 40px 20px;
+    /* Better mobile padding */
+    padding: clamp(20px, 8vw, 40px) clamp(16px, 4vw, 20px);
+}
+
+.loadingSpinner {
+    text-align: center;
+    background: white;
+    padding: 48px 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    max-width: 400px;
+    width: 100%;
+    /* Better mobile sizing */
+    padding: clamp(24px, 8vw, 48px) clamp(20px, 6vw, 32px);
+    border-radius: clamp(12px, 3vw, 16px);
+    max-width: min(400px, 90vw);
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px auto;
+    /* Responsive spinner */
+    width: clamp(40px, 10vw, 48px);
+    height: clamp(40px, 10vw, 48px);
+    border-width: clamp(3px, 1vw, 4px);
+    margin-bottom: clamp(16px, 4vw, 24px);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loadingSpinner h2 {
+    margin: 0 0 8px 0;
+    color: #1f2937;
+    font-size: 24px;
+    font-weight: 600;
+    /* Responsive heading */
+    font-size: clamp(20px, 5vw, 24px);
+    margin-bottom: clamp(6px, 2vw, 8px);
+    line-height: 1.3;
+}
+
+.loadingSpinner p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1.5;
+    /* Responsive text */
+    font-size: clamp(14px, 3.5vw, 16px);
+    line-height: 1.6;
+}
+
+/* Error States */
+.errorContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    padding: 40px 20px;
+    /* Better mobile padding */
+    padding: clamp(20px, 8vw, 40px) clamp(16px, 4vw, 20px);
+}
+
+.errorMessage {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    /* Better mobile sizing */
+    padding: clamp(20px, 6vw, 32px);
+    border-radius: clamp(8px, 2vw, 12px);
+    max-width: min(500px, 90vw);
+}
+
+.errorMessage h2 {
+    color: #dc2626;
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    font-weight: 600;
+    /* Responsive error heading */
+    font-size: clamp(20px, 5vw, 24px);
+    margin-bottom: clamp(12px, 3vw, 16px);
+    line-height: 1.3;
+}
+
+.errorMessage p {
+    color: #7f1d1d;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+    /* Responsive error text */
+    font-size: clamp(14px, 3.5vw, 16px);
+    margin-bottom: clamp(16px, 4vw, 24px);
+    line-height: 1.6;
+}
+
+.retryButton {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    /* Better mobile touch target */
+    padding: clamp(12px, 3vw, 14px) clamp(20px, 5vw, 24px);
+    font-size: clamp(14px, 3.5vw, 16px);
+    min-height: 44px; /* Minimum touch target size */
+    border-radius: clamp(6px, 2vw, 8px);
+    min-width: 120px;
+}
+
+.retryButton:hover {
+    background-color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+/* Mobile-friendly button interactions */
+@media (hover: none) and (pointer: coarse) {
+    .retryButton:hover {
+        transform: none;
+    }
+    .retryButton:active {
+        background-color: #b91c1c;
+        transform: scale(0.98);
+    }
+}
+
+/* Enhanced Mobile Responsive Design */
+@media (max-width: 768px) {
+    .pageContainer {
+        background: #f8fafc;
+        /* Remove gradient on mobile for better performance */
+    }
+    
+    .mainContent {
+        margin-top: 60px; /* Adjusted for mobile */
+    }
+    
+    .pageHeader {
+        position: static; /* Keep static on mobile */
+    }
+    
+    .headerContent {
+        padding: 24px 16px;
+    }
+    
+    .pageTitle {
+        font-size: 28px;
+        text-align: center;
+    }
+    
+    .pageSubtitle {
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .loadingContainer,
+    .errorContainer {
+        padding: 20px 16px;
+    }
+    
+    .loadingSpinner {
+        padding: 32px 24px;
+        max-width: none;
+        margin: 0 8px;
+    }
+    
+    .loadingSpinner h2 {
+        font-size: 20px;
+    }
+    
+    .errorMessage {
+        padding: 24px;
+        max-width: none;
+        margin: 0 8px;
+    }
+    
+    .errorMessage h2 {
+        font-size: 20px;
+    }
+    
+    .retryButton {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .headerContent {
+        padding: 20px 12px;
+    }
+    
+    .pageTitle {
+        font-size: 24px;
+        line-height: 1.2;
+    }
+    
+    .pageSubtitle {
+        font-size: 13px;
+    }
+    
+    .loadingSpinner {
+        padding: 24px 16px;
+        margin: 0 4px;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
+    }
+    
+    .loadingSpinner h2 {
+        font-size: 18px;
+    }
+    
+    .loadingSpinner p {
+        font-size: 14px;
+    }
+    
+    .errorMessage {
+        padding: 20px;
+        margin: 0 4px;
+    }
+    
+    .errorMessage h2 {
+        font-size: 18px;
+    }
+    
+    .errorMessage p {
+        font-size: 14px;
+    }
+    
+    .retryButton {
+        font-size: 14px;
+        padding: 12px 16px;
+    }
+}
+
+/* Ultra-small screens (< 320px) */
+@media (max-width: 320px) {
+    .headerContent {
+        padding: 16px 8px;
+    }
+    
+    .pageTitle {
+        font-size: 22px;
+    }
+    
+    .pageSubtitle {
+        font-size: 12px;
+    }
+    
+    .loadingSpinner {
+        padding: 20px 12px;
+        margin: 0 2px;
+    }
+    
+    .spinner {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .loadingSpinner h2 {
+        font-size: 16px;
+    }
+    
+    .loadingSpinner p {
+        font-size: 13px;
+    }
+    
+    .errorMessage {
+        padding: 16px;
+        margin: 0 2px;
+    }
+    
+    .errorMessage h2 {
+        font-size: 16px;
+    }
+    
+    .errorMessage p {
+        font-size: 13px;
+    }
+}
+
+/* Additional utility classes */
+.visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Enhanced Focus states for accessibility */
+.retryButton:focus,
+.refreshButton:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    /* Better mobile focus indication */
+    outline-width: clamp(2px, 0.5vw, 3px);
+}
+
+/* Touch-friendly focus styles */
+@media (hover: none) and (pointer: coarse) {
+    .retryButton:focus,
+    .refreshButton:focus {
+        outline: 3px solid #3b82f6;
+        outline-offset: 3px;
+    }
+}
+
+/* Prevent zoom on input focus for iOS */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* Safe area insets for devices with notches */
+@supports (padding: max(0px)) {
+    .pageHeader {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
+    
+    .headerContent {
+        padding-left: max(clamp(16px, 4vw, 24px), env(safe-area-inset-left));
+        padding-right: max(clamp(16px, 4vw, 24px), env(safe-area-inset-right));
+    }
+    
+    .container {
+        padding-left: max(clamp(12px, 4vw, 24px), env(safe-area-inset-left));
+        padding-right: max(clamp(12px, 4vw, 24px), env(safe-area-inset-right));
+    }
+    
+    .loadingContainer,
+    .errorContainer {
+        padding-left: max(clamp(16px, 4vw, 20px), env(safe-area-inset-left));
+        padding-right: max(clamp(16px, 4vw, 20px), env(safe-area-inset-right));
+    }
+}
+
+/* Improved text selection for mobile */
+::selection {
+    background-color: #3b82f6;
+    color: white;
+}
+
+::-webkit-selection {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Prevent horizontal scrolling */
+body {
+    overflow-x: hidden;
+}
+
+/* Better line height for readability on mobile */
+@media (max-width: 768px) {
+    body {
+        line-height: 1.6;
+    }
+    
+    p, li, td {
+        line-height: 1.7;
+    }
+}
+
+/* Optimized animations for mobile performance */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .spinner {
+        animation: none;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #3b82f6;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .statusBadge {
+        border: 2px solid currentColor;
+    }
+    
+    .reportCard {
+        border-width: 2px;
+    }
+    
+    .pageHeader {
+        border-bottom-width: 2px;
+    }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+    .pageContainer {
+        background: #e4eeff;
+    }
+    
+    .mainContent {
+        background-color: #e4eeff;
+    }
+    
+    .pageHeader {
+        background: #eff5ff;
+        border-bottom-color: #fcfdff;
+        color: #15395c;
+    }
+    
+    .pageTitle {
+        color: #15395c;
+    }
+    
+    .pageSubtitle {
+        color: #17283d;
+    }
+    
+    .loadingSpinner,
+    .errorMessage {
+        background: #eaf2ff;
+        border-color: #475569;
+        color: #04182c;
+    }
+    
+    .spinner {
+        border-color: #475569;
+        border-top-color: #60a5fa;
+    }
+}
+
+/* Print styles */
+@media print {
+    .pageContainer {
+        background: white !important;
+        min-height: auto;
+    }
+    
+    .pageHeader {
+        box-shadow: none;
+        border-bottom: 1px solid #ccc;
+        position: static;
+    }
+    
+    .loadingSpinner,
+    .errorMessage {
+        display: none;
+    }
+    
+    .retryButton,
+    .refreshButton {
+        display: none;
+    }
+    
+    /* Optimize for print */
+    .reportCard {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .pageTitle {
+        color: black;
+    }
+    
+    .pageSubtitle {
+        color: #666;
+    }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+    /* Use transform3d for hardware acceleration */
+    .reportCard,
+    .retryButton,
+    .refreshButton {
+        transform: translate3d(0, 0, 0);
+    }
+    
+    /* Reduce box-shadow complexity on mobile */
+    .reportCard {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .reportCard:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    .loadingSpinner {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+    .pageHeader {
+        position: static; /* Keep static in landscape */
+    }
+    
+    .headerContent {
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    
+    .pageTitle {
+        font-size: clamp(20px, 4vw, 24px);
+    }
+    
+    .loadingSpinner,
+    .errorMessage {
+        padding: clamp(16px, 4vw, 24px);
+    }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 481px) and (max-width: 768px) {
+    .reportsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .listHeader {
+        flex-direction: row;
+        text-align: left;
+    }
+    
+    .refreshButton {
+        width: auto;
+    }
+}

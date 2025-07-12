@@ -1,0 +1,201 @@
+/* Admin Page Styles */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100vw;
+    background-color: #f8fafc;
+}
+
+.dashboard {
+    flex: 1;
+}
+
+.contentArea {
+    display: flex;
+    gap: 20px;
+    /* padding: 20px; */
+    padding-top: 3%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.dashboardSection {
+    flex: 1;
+    min-width: 300px;
+}
+
+.detailsSection {
+    flex: 1;
+    min-width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.closeButton {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background: #dc2626;
+}
+
+.itemList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.itemCard {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.itemCard:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.itemCard.selected {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.itemButton {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 16px;
+    text-align: left;
+    cursor: pointer;
+    display: block;
+}
+
+.itemName {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.itemSubtext {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.selectedItemDetails {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    border-radius: 8px;
+}
+
+.detailsTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin: 0 0 16px 0;
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.detailItem {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #0ea5e9;
+}
+
+.detailLabel {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 4px 0;
+}
+
+.detailValue {
+    font-size: 0.9rem;
+    color: #1f2937;
+    margin: 0;
+    word-break: break-word;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.emptyStateIcon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.emptyStateText {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contentArea {
+        flex-direction: column;
+        padding: 16px;
+    }
+    
+    .detailsSection {
+        min-width: auto;
+    }
+    
+    .detailsGrid {
+        grid-template-columns: 1fr;
+    }
+}
