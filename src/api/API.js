@@ -1,3 +1,3 @@
 // const api = "http://localhost:3008"
-const api = "https://improved-umbrella-j6wr7x66qgq356ww-3008.app.github.dev"
+const api = "https://teamup-production-23f5.up.railway.app"
 export default api ;
