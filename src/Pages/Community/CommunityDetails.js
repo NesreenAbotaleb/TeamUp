@@ -8,26 +8,33 @@ import { ReactComponent as Cross } from './../../assets/svgs/Cross.svg'
 import TeamsList from '../../Componant/Teams/TeamsList';
 
 import UserContext from "../../context/Usercontext";
-// ✅ FIXED: Use centralized community context instead of separate hook
+
 import { useCommunity } from "../../context/CommunityContext";
 
 import Leave from "../../servies/Community/leave";
 import deleteComm from "../../servies/Community/deleteComm";
 import createTeam from "../../servies/Teams/createTeam";
 import UserTeams from "../../servies/Teams/UserTeams";
+// import { all } from "axios";
 
 function CommunityDetail() {
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
     const { users, setUsers } = useContext(UserContext);
     
-    // ✅ FIXED: Use centralized community context
-    const {
-        fetchCommunity,
-        getCachedCommunity,
-        updateCommunityCache,
-        removeCommunityFromCache
-    } = useCommunity();
+  
+   const {
+    fetchCommunity,
+    getCachedCommunity,
+    updateCommunityCache,
+    removeCommunityFromCache,
+    fetchAllCommunities,
+    refreshCommunityAfterOperation,
+    createCommunityWithCache,
+    joinCommunityWithCache,
+    allCommunities
+} = useCommunity();
+    console.log("All communities :" , allCommunities);
     
     const [owner, setOwner] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -36,7 +43,6 @@ function CommunityDetail() {
     
     const { code } = useParams();
     const location = useLocation();
-    const params = useParams();
     
     const name = location.state?.name || "";
     const [communityName, setCommunityName] = useState("");
@@ -53,7 +59,7 @@ function CommunityDetail() {
     const [teams, setTeams] = useState([]);
     const [communityId, setCommunityId] = useState(null);
 
-    // ✅ FIXED: Centralized community loading function
+    // Load community with persistent caching
     const loadCommunity = async (forceRefresh = false) => {
         if (!code) {
             setError("No community code provided");
@@ -65,16 +71,18 @@ function CommunityDetail() {
             setLoading(true);
             setError(null);
             
-            // First check cache
-            const cachedCommunity = getCachedCommunity(code);
-            if (cachedCommunity && !forceRefresh) {
-                console.log("Using cached community data");
-                setCommunity(cachedCommunity);
-                setLoading(false);
-                return;
+            // Check persistent cache first
+            if (!forceRefresh) {
+                const cachedCommunity = getCachedCommunity(code);
+                if (cachedCommunity) {
+                    console.log("Using persistent cached community data");
+                    setCommunity(cachedCommunity);
+                    setLoading(false);
+                    return;
+                }
             }
 
-            // Fetch from API if not in cache or force refresh
+            // Fetch from API
             console.log("Fetching community from API");
             const communityData = await fetchCommunity(code, forceRefresh);
             setCommunity(communityData);
@@ -87,9 +95,9 @@ function CommunityDetail() {
         }
     };
 
-    // ✅ FIXED: Refetch function for cache updates
-    const refetch = () => {
-        loadCommunity(true);
+    // Refetch function that forces refresh and updates cache
+    const refetch = async () => {
+        await loadCommunity(true);
     };
 
     // Initialize community loading
@@ -97,23 +105,21 @@ function CommunityDetail() {
         loadCommunity();
     }, [code]);
 
-    // ✅ FIXED: Enhanced community data processing
+    // Process community data
     useEffect(() => {
         if (community) {
-            // Extract community data based on structure
             const communityData = community.community || community;
             const communityInfo = community;
 
             setCommunityName(communityData?.name || communityInfo?.name || "");
             setUsers(communityInfo?.membersInfo || []);
             
-            // Extract community ID with multiple fallbacks
+            // Extract community ID
             const extractedId = communityData?._id || 
                                communityInfo?._id || 
                                communityData?.id ||
                                communityInfo?.id;
             
-            console.log("🆔 Setting Community ID:", extractedId);
             if (extractedId) {
                 setCommunityId(extractedId);
             }
@@ -126,7 +132,6 @@ function CommunityDetail() {
                     .map(team => team.teamID)
                     .filter(id => id !== null && id !== undefined);
                 setTeamIds(allTeamIds);
-                console.log('Setting team IDs:', allTeamIds);
             } else {
                 setUsersTeam('');
                 setTeamIds([]);
@@ -136,12 +141,8 @@ function CommunityDetail() {
             const isOwner = user && (
                 communityData?.creatorId === user.userId ||
                 communityData?.creatorId === user.id 
-               
             );
             setOwner(isOwner);
-            // console.log("Is user owner:", user.id);
-            // console.log('Community data:', communityData);
-            // console.log('Community info:', communityInfo);
         }
     }, [community, user, setUsers]);
 
@@ -169,18 +170,94 @@ function CommunityDetail() {
         }
     }, [user, navigate]);
 
-    // ✅ FIXED: Team and post creation handlers with proper cache updates
-    const handlePostCreated = () => {
-        // Update cache and refetch
-        refetch();
+    // Enhanced handlers that update cache
+    const handlePostCreated = async (newPost) => {
+        // Update cache with new post
+        if (newPost && community) {
+            const updatedCommunity = {
+                ...community,
+                posts: [...(community.posts || []), newPost]
+            };
+            updateCommunityCache(code, updatedCommunity);
+        }
+        
+        // Also refetch to ensure sync
+        await refetch();
     };
 
-    const handleTeamCreated = () => {
-        // Update cache and refetch
-        refetch();
+    const handleTeamCreated = async (newTeam) => {
+        // Update cache with new team
+        if (newTeam && community) {
+            const updatedCommunity = {
+                ...community,
+                allTeams: [...(community.allTeams || []), newTeam]
+            };
+            updateCommunityCache(code, updatedCommunity);
+        }
+        
+        // Also refetch to ensure sync
+        await refetch();
     };
 
-    // ✅ FIXED: Enhanced team creation with cache update
+    // const handleCreateTeam = async () => {
+    //     if (!teamName.trim()) {
+    //         alert("Please enter a team name");
+    //         return;
+    //     }
+        
+    //     try {
+    //         await createTeam({
+    //             teamName, 
+    //             code, 
+    //             setTeam, 
+    //             setJoin, 
+    //             teams, 
+    //             setTeams,
+    //             refetch,
+    //             onSuccess: (newTeam) => {
+    //                 console.log("Team creation successful, updating cache...");
+    //                 setTeamName(""); 
+    //                 setTeam(false);
+    //                 handleTeamCreated(newTeam);
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error("Error creating team:", error);
+    //         alert("Failed to create team. Please try again.");
+    //     }
+    // };
+
+    const handleLeaveCommunity = async () => {
+        try {
+            await Leave(communityCode, communityName, navigate);
+            
+            // Remove from cache after successful leave
+            removeCommunityFromCache(communityCode);
+            
+            // Also refresh the communities list to ensure global state is updated
+            await fetchAllCommunities(true);
+            
+            console.log("Successfully left community and updated cache");
+        } catch (error) {
+            console.error("Error leaving community:", error);
+        }
+    };
+        const handleDeleteCommunity = async () => {
+        try {
+            await deleteComm(communityCode, navigate);
+            
+            // Remove from cache after successful deletion
+            removeCommunityFromCache(communityCode);
+            
+            // Also refresh the communities list to ensure global state is updated
+            await fetchAllCommunities(true);
+            
+            console.log("Successfully deleted community and updated cache");
+        } catch (error) {
+            console.error("Error deleting community:", error);
+        }
+    };
+
     const handleCreateTeam = async () => {
         if (!teamName.trim()) {
             alert("Please enter a team name");
@@ -195,12 +272,16 @@ function CommunityDetail() {
                 setJoin, 
                 teams, 
                 setTeams,
-                refetch,
-                onSuccess: () => {
+                refetch: async () => {
+                    await refetch();
+                    // Also refresh communities list if team creation affects community data
+                    await fetchAllCommunities(true);
+                },
+                onSuccess: (newTeam) => {
                     console.log("Team creation successful, updating cache...");
                     setTeamName(""); 
                     setTeam(false);
-                    handleTeamCreated();
+                    handleTeamCreated(newTeam);
                 }
             });
         } catch (error) {
@@ -209,27 +290,6 @@ function CommunityDetail() {
         }
     };
 
-    // ✅ FIXED: Enhanced leave community handler
-    const handleLeaveCommunity = async () => {
-        try {
-            await Leave(communityCode, communityName, navigate);
-            // Remove from cache after successful leave
-            removeCommunityFromCache(communityCode);
-        } catch (error) {
-            console.error("Error leaving community:", error);
-        }
-    };
-
-    // ✅ FIXED: Enhanced delete community handler
-    const handleDeleteCommunity = async () => {
-        try {
-            await deleteComm(communityCode, navigate);
-            // Remove from cache after successful deletion
-            removeCommunityFromCache(communityCode);
-        } catch (error) {
-            console.error("Error deleting community:", error);
-        }
-    };
 
     // Compute derived data
     const comm_teams = community?.allTeams || [];
@@ -242,11 +302,6 @@ function CommunityDetail() {
             u.teams.every(teamId => commTeamIDs.includes(teamId));
         return isDifferentUser && teamCondition;
     }) : [];
-
-    // Debug logging
-    console.log('Community data:', community);
-    console.log('Community ID:', communityId);
-    console.log('Team IDs:', teamIds);
 
     // Loading state
     if (loading) {

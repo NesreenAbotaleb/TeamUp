@@ -9,6 +9,10 @@ import axios from "axios";
 import api from "../../api/API";
 import style from './style.module.css';
 
+// Import the handler functions
+import handelJoin from './../../servies/Community/join'; 
+import handelCreate from './../../servies/Community/create'; 
+
 // Import your SVG components
 import { ReactComponent as Character } from './../../assets/svgs/joinus 1 1.svg';
 import { ReactComponent as Cross } from './../../assets/svgs/Cross.svg';
@@ -95,6 +99,7 @@ function Community() {
     const [toast, setToast] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [editdata, setEditdata] = useState({ code: "", communities: [] });
+    const [communities, setCommunities] = useState([]); // For handler functions
 
     const userRole_ = user && user.userRole === 2;
     const userState = (user && user.role === 2) || userRole_;
@@ -178,7 +183,7 @@ function Community() {
         }
     };
 
-    // Enhanced join handler with cache update
+    // Updated join handler to use handelJoin
     const handleJoinCommunity = async () => {
         if (!editdata.code.trim()) {
             showToast('Please enter a community code', 'error');
@@ -187,28 +192,22 @@ function Community() {
 
         setSubmitLoading(true);
         try {
-            const token = user.token;
-            const response = await axios.post(`${api}/community/join`, {
-                code: editdata.code.trim()
-            }, {
-                headers: {
-                    Authorization: `${token}`
-                }
-            });
-
-            if (response.data && response.data.community) {
-                // Update cache with joined community
-                joinCommunityInCache(response.data.community.code, user.id);
+            // Use the imported handelJoin function
+            await handelJoin(editdata, setCommunities, setJoin);
+            
+            // Update cache after successful join
+            const joinedCommunity = communities.find(c => c.code_Comm === editdata.code.trim());
+            if (joinedCommunity) {
+                joinCommunityInCache(joinedCommunity.code_Comm, user.id);
                 
                 // If it's a new community, add it to the cache
-                if (!allCommunities.find(c => c.code === response.data.community.code)) {
-                    addCommunityToCache(response.data.community);
+                if (!allCommunities.find(c => c.code === joinedCommunity.code_Comm)) {
+                    addCommunityToCache(joinedCommunity);
                 }
-                
-                showToast('Successfully joined community!', 'success');
-                setJoin(false);
-                setEditdata({ code: "", communities: [] });
             }
+            
+            showToast('Successfully joined community!', 'success');
+            setEditdata({ code: "", communities: [] });
         } catch (err) {
             handleError(err, 'Failed to join community');
         } finally {
@@ -216,7 +215,7 @@ function Community() {
         }
     };
 
-    // Enhanced create handler with cache update
+    // Updated create handler to use handelCreate
     const handleCreateCommunity = async () => {
         if (!name.trim()) {
             showToast('Please enter a community name', 'error');
@@ -225,28 +224,28 @@ function Community() {
 
         setSubmitLoading(true);
         try {
-            const token = user.token;
-            const response = await axios.post(`${api}/community/create`, {
-                name: name.trim(),
-                description: description.trim()
-            }, {
-                headers: {
-                    Authorization: `${token}`
-                }
-            });
-
-            if (response.data && response.data.community) {
-                // Update cache with new community
-                addCommunityToCache(response.data.community);
-                
-                setCode(response.data.community.code);
-                setCopy(true);
-                showToast('Community created successfully!', 'success');
-                setCreate(false);
-                setName("");
-                setDescription("");
-                setValidName(true);
+            // Use the imported handelCreate function
+            await handelCreate(
+                name.trim(),
+                setValidName,
+                setCode,
+                setCopy,
+                setCreate,
+                setCommunities,
+                navigate,
+                description.trim()
+            );
+            
+            // Update cache after successful creation
+            const createdCommunity = communities[communities.length - 1]; // Get the last added community
+            if (createdCommunity) {
+                addCommunityToCache(createdCommunity);
             }
+            
+            showToast('Community created successfully!', 'success');
+            setName("");
+            setDescription("");
+            setValidName(true);
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 setValidName(false);
@@ -261,6 +260,15 @@ function Community() {
     const handleRetry = () => {
         loadCommunities(true);
     };
+
+    // Update cache when communities state changes
+    useEffect(() => {
+        communities.forEach(community => {
+            if (!allCommunities.find(c => c.code === community.code_Comm)) {
+                addCommunityToCache(community);
+            }
+        });
+    }, [communities, allCommunities, addCommunityToCache]);
 
     // Effects
     useEffect(() => {

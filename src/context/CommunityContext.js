@@ -13,35 +13,109 @@ export const useCommunity = () => {
   return context;
 };
 
-export const CommunityProvider = ({ children }) => {
-  // Individual community cache (Map for O(1) lookup)
-  const [communityCache, setCommunityCache] = useState(new Map());
+// In-memory storage utility functions (replacing localStorage)
+const MemoryStorage = {
+  cache: new Map(),
   
-  // Communities list cache (for all communities)
-  const [communitiesListCache, setCommunitiesListCache] = useState({
-    data: [],
-    timestamp: null,
-    loading: false,
-    error: null
+  // Save individual community cache
+  saveCommunityCache: (cacheMap) => {
+    try {
+      MemoryStorage.cache.set('community_cache', cacheMap);
+    } catch (error) {
+      console.warn('Failed to save community cache:', error);
+    }
+  },
+
+  // Load individual community cache
+  loadCommunityCache: () => {
+    try {
+      return MemoryStorage.cache.get('community_cache') || new Map();
+    } catch (error) {
+      console.warn('Failed to load community cache:', error);
+      return new Map();
+    }
+  },
+
+  // Save communities list cache
+  saveCommunitiesListCache: (cache) => {
+    try {
+      MemoryStorage.cache.set('communities_list', cache);
+    } catch (error) {
+      console.warn('Failed to save communities list cache:', error);
+    }
+  },
+
+  // Load communities list cache
+  loadCommunitiesListCache: () => {
+    try {
+      return MemoryStorage.cache.get('communities_list') || {
+        data: [],
+        timestamp: null,
+        loading: false,
+        error: null
+      };
+    } catch (error) {
+      console.warn('Failed to load communities list cache:', error);
+      return {
+        data: [],
+        timestamp: null,
+        loading: false,
+        error: null
+      };
+    }
+  },
+
+  // Clear all cache
+  clearCache: () => {
+    try {
+      MemoryStorage.cache.clear();
+    } catch (error) {
+      console.warn('Failed to clear cache:', error);
+    }
+  },
+
+  // Check if storage is available
+  isStorageAvailable: () => {
+    return true; // Memory storage is always available
+  }
+};
+
+export const CommunityProvider = ({ children }) => {
+  const { user } = useContext(UserContext);
+  
+  // Initialize from memory storage
+  const [communityCache, setCommunityCache] = useState(() => {
+    return MemoryStorage.loadCommunityCache();
+  });
+  
+  const [communitiesListCache, setCommunitiesListCache] = useState(() => {
+    return MemoryStorage.loadCommunitiesListCache();
   });
   
   // Track ongoing requests to prevent duplicate API calls
   const [ongoingRequests, setOngoingRequests] = useState(new Set());
-  
-  const { user } = useContext(UserContext);
 
   // Constants
-  const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes
+  const CACHE_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutes
   const REQUEST_TIMEOUT = 10000; // 10 seconds
+
+  // Persist cache whenever it changes
+  useEffect(() => {
+    MemoryStorage.saveCommunityCache(communityCache);
+  }, [communityCache]);
+
+  useEffect(() => {
+    MemoryStorage.saveCommunitiesListCache(communitiesListCache);
+  }, [communitiesListCache]);
 
   // Helper function to check if cache is expired
   const isCacheExpired = useCallback((timestamp) => {
     return !timestamp || Date.now() - timestamp > CACHE_EXPIRY_TIME;
-  }, []);
+  }, [CACHE_EXPIRY_TIME]);
 
   // Helper function to get auth token
   const getAuthToken = useCallback(() => {
-    const token = user?.token || localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("No authentication token found");
     }
@@ -52,12 +126,12 @@ export const CommunityProvider = ({ children }) => {
   const createAxiosConfig = useCallback((token) => ({
     timeout: REQUEST_TIMEOUT,
     headers: { Authorization: `${token}` }
-  }), []);
+  }), [REQUEST_TIMEOUT]);
 
   // =================== INDIVIDUAL COMMUNITY FUNCTIONS ===================
 
   /**
-   * Fetch a single community by code with caching and duplicate request prevention
+   * Fetch a single community by code with caching
    * @param {string} code - Community code
    * @param {boolean} forceRefresh - Force refresh from API
    * @returns {Promise<Object>} Community data
@@ -108,17 +182,22 @@ export const CommunityProvider = ({ children }) => {
       const communityData = response.data;
 
       // Update cache
-      setCommunityCache(prev => new Map(prev).set(code, {
-        data: communityData,
-        timestamp: Date.now()
-      }));
+      setCommunityCache(prev => {
+        const newCache = new Map(prev);
+        newCache.set(code, {
+          data: communityData,
+          timestamp: Date.now()
+        });
+        return newCache;
+      });
 
       // Also update in communities list cache if it exists there
       setCommunitiesListCache(prev => ({
         ...prev,
         data: prev.data.map(community => 
           community.code === code ? { ...community, ...communityData } : community
-        )
+        ),
+        timestamp: Date.now()
       }));
 
       return communityData;
@@ -144,12 +223,13 @@ export const CommunityProvider = ({ children }) => {
    */
   const getCachedCommunity = useCallback((code) => {
     if (!code) return null;
+    
     const cached = communityCache.get(code);
     return cached && !isCacheExpired(cached.timestamp) ? cached.data : null;
   }, [communityCache, isCacheExpired]);
 
   /**
-   * Update community in cache (unified function)
+   * Update community in cache
    * @param {string} code - Community code
    * @param {Object} updates - Updates to apply
    */
@@ -183,7 +263,8 @@ export const CommunityProvider = ({ children }) => {
         community.code === code 
           ? { ...community, ...updates }
           : community
-      )
+      ),
+      timestamp: Date.now()
     }));
   }, []);
 
@@ -194,6 +275,8 @@ export const CommunityProvider = ({ children }) => {
   const removeCommunityFromCache = useCallback((code) => {
     if (!code) return;
 
+    console.log(`Removing community from cache: ${code}`);
+
     // Remove from individual cache
     setCommunityCache(prev => {
       const newCache = new Map(prev);
@@ -202,17 +285,26 @@ export const CommunityProvider = ({ children }) => {
     });
 
     // Remove from list cache
-    setCommunitiesListCache(prev => ({
-      ...prev,
-      data: prev.data.filter(community => community.code !== code),
-      timestamp: Date.now()
-    }));
+    setCommunitiesListCache(prev => {
+      const filteredData = prev.data.filter(community => 
+        community.code !== code && 
+        community.code_Comm !== code
+      );
+      
+      return {
+        ...prev,
+        data: filteredData,
+        timestamp: Date.now()
+      };
+    });
+
+    console.log(`Community ${code} removed from cache`);
   }, []);
 
   // =================== COMMUNITIES LIST FUNCTIONS ===================
 
   /**
-   * Fetch all communities with caching and duplicate request prevention
+   * Fetch all communities with caching
    * @param {boolean} forceRefresh - Force refresh from API
    * @returns {Promise<Array>} Array of communities
    */
@@ -324,38 +416,163 @@ export const CommunityProvider = ({ children }) => {
   /**
    * Add new community to cache
    * @param {Object} newCommunity - New community data
+   * @param {boolean} isUserCreated - Whether current user created this community
    */
-  const addCommunityToCache = useCallback((newCommunity) => {
-    if (!newCommunity || !newCommunity.code) {
+  const addCommunityToCache = useCallback((newCommunity, isUserCreated = false) => {
+    if (!newCommunity || (!newCommunity.code && !newCommunity.code_Comm)) {
       console.warn('Invalid community data for cache');
       return;
     }
 
+    const communityCode = newCommunity.code || newCommunity.code_Comm;
+    console.log(`Adding community to cache: ${communityCode}`);
+
+    // Ensure proper structure
+    const communityData = {
+      ...newCommunity,
+      members: newCommunity.members || [],
+      memberCount: newCommunity.memberCount || (newCommunity.members?.length || 0),
+      membersInfo: newCommunity.membersInfo || [],
+      posts: newCommunity.posts || [],
+      allTeams: newCommunity.allTeams || [],
+      createdAt: newCommunity.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
     // Add to individual cache
-    setCommunityCache(prev => new Map(prev).set(newCommunity.code, {
-      data: newCommunity,
+    setCommunityCache(prev => new Map(prev).set(communityCode, {
+      data: communityData,
       timestamp: Date.now()
     }));
 
     // Add to list cache (avoid duplicates)
     setCommunitiesListCache(prev => {
-      const exists = prev.data.some(community => community.code === newCommunity.code);
+      const exists = prev.data.some(community => 
+        community.code === communityCode || 
+        community.code_Comm === communityCode
+      );
+      
       if (exists) {
         return {
           ...prev,
-          data: prev.data.map(community => 
-            community.code === newCommunity.code ? { ...community, ...newCommunity } : community
-          ),
+          data: prev.data.map(community => {
+            if (community.code === communityCode || community.code_Comm === communityCode) {
+              return { ...community, ...communityData };
+            }
+            return community;
+          }),
           timestamp: Date.now()
         };
       }
+      
       return {
         ...prev,
-        data: [...prev.data, newCommunity],
+        data: [...prev.data, communityData],
         timestamp: Date.now()
       };
     });
+
+    console.log(`Successfully added community ${communityCode} to cache`);
   }, []);
+
+  /**
+   * Create community and add to cache
+   * @param {Object} communityData - Community data
+   * @param {Function} apiCall - API function to create community
+   * @param {Object} currentUser - Current user
+   */
+  const createCommunityWithCache = useCallback(async (communityData, apiCall, currentUser) => {
+    try {
+      console.log('Creating community and updating cache...');
+      
+      // Call API to create community
+      const response = await apiCall(communityData);
+      const newCommunity = response.data || response;
+      
+      // Ensure the creator is added as a member
+      const enrichedCommunity = {
+        ...newCommunity,
+        members: newCommunity.members || [{ 
+          memberId: currentUser.id || currentUser.userId, 
+          userId: currentUser.id || currentUser.userId,
+          name: currentUser.name,
+          email: currentUser.email,
+          role: 'creator'
+        }],
+        memberCount: newCommunity.memberCount || 1,
+        membersInfo: newCommunity.membersInfo || [{
+          id: currentUser.id || currentUser.userId,
+          name: currentUser.name,
+          email: currentUser.email,
+          role: 'creator'
+        }],
+        creatorId: currentUser.id || currentUser.userId
+      };
+      
+      // Add to cache
+      addCommunityToCache(enrichedCommunity, true);
+      
+      console.log('Community created and cached successfully');
+      return enrichedCommunity;
+    } catch (error) {
+      console.error('Error creating community:', error);
+      throw error;
+    }
+  }, [addCommunityToCache]);
+
+  /**
+   * Join community via API and update cache
+   * @param {string} communityCode - Community code
+   * @param {Function} apiCall - API function to join community
+   * @param {Object} currentUser - Current user
+   */
+  const joinCommunityWithCache = useCallback(async (communityCode, apiCall, currentUser) => {
+    try {
+      console.log(`Joining community ${communityCode} and updating cache...`);
+      
+      // Call API to join community
+      const response = await apiCall(communityCode);
+      
+      // Update cache with user join
+      const userInfo = {
+        id: currentUser.id || currentUser.userId,
+        name: currentUser.name,
+        email: currentUser.email,
+        role: 'member'
+      };
+      
+      joinCommunityInCache(communityCode, currentUser.id || currentUser.userId, userInfo);
+      
+      // Force refresh communities list to ensure consistency
+      await fetchAllCommunities(true);
+      
+      console.log(`Successfully joined community ${communityCode}`);
+      return response;
+    } catch (error) {
+      console.error('Error joining community:', error);
+      throw error;
+    }
+  }, [fetchAllCommunities]);
+
+  /**
+   * Refresh community data after any operation
+   * @param {string} communityCode - Community code
+   */
+  const refreshCommunityAfterOperation = useCallback(async (communityCode) => {
+    try {
+      console.log(`Refreshing community data for: ${communityCode}`);
+      
+      // Refresh specific community
+      await fetchCommunity(communityCode, true);
+      
+      // Refresh communities list
+      await fetchAllCommunities(true);
+      
+      console.log(`Successfully refreshed community data for: ${communityCode}`);
+    } catch (error) {
+      console.error('Error refreshing community data:', error);
+    }
+  }, [fetchCommunity, fetchAllCommunities]);
 
   // =================== COMMUNITY MEMBERSHIP FUNCTIONS ===================
 
@@ -363,25 +580,72 @@ export const CommunityProvider = ({ children }) => {
    * Join community (update cache)
    * @param {string} communityCode - Community code
    * @param {string} userId - User ID
+   * @param {Object} userInfo - Additional user information
    */
-  const joinCommunityInCache = useCallback((communityCode, userId) => {
+  const joinCommunityInCache = useCallback((communityCode, userId, userInfo = null) => {
     if (!communityCode || !userId) return;
 
-    const community = getCachedCommunity(communityCode);
-    if (community) {
-      const existingMember = community.members?.find(member => 
-        member.memberId === userId || member.userId === userId
-      );
+    console.log(`Joining community in cache: ${communityCode} for user: ${userId}`);
+
+    // Update individual community cache
+    setCommunityCache(prev => {
+      const newCache = new Map(prev);
+      const existing = newCache.get(communityCode);
       
-      if (!existingMember) {
-        const updates = {
-          members: [...(community.members || []), { memberId: userId, userId }],
-          memberCount: (community.memberCount || 0) + 1
-        };
-        updateCommunityCache(communityCode, updates);
+      if (existing) {
+        const community = existing.data;
+        const existingMember = community.members?.find(member => 
+          member.memberId === userId || member.userId === userId
+        );
+        
+        if (!existingMember) {
+          const newMember = {
+            memberId: userId,
+            userId: userId,
+            ...userInfo
+          };
+          
+          const updatedCommunity = {
+            ...community,
+            members: [...(community.members || []), newMember],
+            memberCount: (community.memberCount || 0) + 1,
+            membersInfo: [...(community.membersInfo || []), userInfo].filter(Boolean)
+          };
+          
+          newCache.set(communityCode, {
+            data: updatedCommunity,
+            timestamp: Date.now()
+          });
+        }
       }
-    }
-  }, [getCachedCommunity, updateCommunityCache]);
+      return newCache;
+    });
+
+    // Update communities list cache
+    setCommunitiesListCache(prev => ({
+      ...prev,
+      data: prev.data.map(community => {
+        if (community.code === communityCode || community.code_Comm === communityCode) {
+          const existingMember = community.members?.find(member => 
+            member.memberId === userId || member.userId === userId
+          );
+          
+          if (!existingMember) {
+            return {
+              ...community,
+              members: [...(community.members || []), { memberId: userId, userId, ...userInfo }],
+              memberCount: (community.memberCount || 0) + 1,
+              membersInfo: [...(community.membersInfo || []), userInfo].filter(Boolean)
+            };
+          }
+        }
+        return community;
+      }),
+      timestamp: Date.now()
+    }));
+
+    console.log(`Successfully joined community ${communityCode} in cache`);
+  }, []);
 
   /**
    * Leave community (update cache)
@@ -427,6 +691,10 @@ export const CommunityProvider = ({ children }) => {
       error: null
     });
     setOngoingRequests(new Set());
+    
+    // Clear memory storage
+    MemoryStorage.clearCache();
+    
     console.log('All cache cleared');
   }, []);
 
@@ -454,6 +722,19 @@ export const CommunityProvider = ({ children }) => {
   }, [isCacheExpired, communitiesListCache.timestamp]);
 
   /**
+   * Refresh cache from memory storage
+   */
+  const refreshFromMemoryStorage = useCallback(() => {
+    const memoryCommunityCache = MemoryStorage.loadCommunityCache();
+    const memoryListCache = MemoryStorage.loadCommunitiesListCache();
+    
+    setCommunityCache(memoryCommunityCache);
+    setCommunitiesListCache(memoryListCache);
+    
+    console.log('Cache refreshed from memory storage');
+  }, []);
+
+  /**
    * Get cache statistics for debugging
    * @returns {Object} Cache statistics
    */
@@ -464,11 +745,12 @@ export const CommunityProvider = ({ children }) => {
       communitiesListExpired: isCommunitiesListCacheExpired(),
       lastFetch: communitiesListCache.timestamp ? new Date(communitiesListCache.timestamp).toLocaleString() : 'Never',
       ongoingRequests: Array.from(ongoingRequests),
-      cacheExpiry: CACHE_EXPIRY_TIME
+      cacheExpiry: CACHE_EXPIRY_TIME,
+      storageAvailable: MemoryStorage.isStorageAvailable()
     };
-  }, [communityCache.size, communitiesListCache, isCommunitiesListCacheExpired, ongoingRequests]);
+  }, [communityCache.size, communitiesListCache, isCommunitiesListCacheExpired, ongoingRequests, CACHE_EXPIRY_TIME]);
 
-  // =================== BACKGROUND CLEANUP ===================
+  // =================== CLEANUP ===================
 
   // Cleanup expired cache entries periodically
   useEffect(() => {
@@ -477,7 +759,14 @@ export const CommunityProvider = ({ children }) => {
     }, CACHE_EXPIRY_TIME);
 
     return () => clearInterval(interval);
-  }, [clearExpiredCache]);
+  }, [clearExpiredCache, CACHE_EXPIRY_TIME]);
+
+  // Clear cache on user logout
+  useEffect(() => {
+    if (!user) {
+      clearAllCache();
+    }
+  }, [user, clearAllCache]);
 
   // =================== CONTEXT VALUE ===================
 
@@ -494,6 +783,11 @@ export const CommunityProvider = ({ children }) => {
     getUserCommunities,
     addCommunityToCache,
     
+    // Enhanced join/create functions
+    createCommunityWithCache,
+    joinCommunityWithCache,
+    refreshCommunityAfterOperation,
+    
     // Membership functions
     joinCommunityInCache,
     leaveCommunityInCache,
@@ -502,6 +796,7 @@ export const CommunityProvider = ({ children }) => {
     isCommunitiesListCacheExpired,
     clearAllCache,
     clearExpiredCache,
+    refreshFromMemoryStorage,
     getCacheStats,
     
     // State data
@@ -522,11 +817,15 @@ export const CommunityProvider = ({ children }) => {
     getCachedCommunities,
     getUserCommunities,
     addCommunityToCache,
+    createCommunityWithCache,
+    joinCommunityWithCache,
+    refreshCommunityAfterOperation,
     joinCommunityInCache,
     leaveCommunityInCache,
     isCommunitiesListCacheExpired,
     clearAllCache,
     clearExpiredCache,
+    refreshFromMemoryStorage,
     getCacheStats,
     communitiesListCache,
     communityCache
